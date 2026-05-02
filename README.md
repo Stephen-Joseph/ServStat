@@ -1,8 +1,8 @@
-# Game Server Tracker
+# ServStat
 
 A modern web application to track and monitor your game servers in real-time. Supports **Minecraft**, **MTA:SA** (Multi Theft Auto), and **SA-MP** (San Andreas Multiplayer) servers.
 
-![Game Server Tracker](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.0-teal)
+![ServStat](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.0-teal)
 
 ## Features
 
