@@ -42,7 +42,7 @@ export function ServerCard({ server, onRemove, onRefresh, onViewDetails }: Serve
     <div className={`bg-gray-800/80 backdrop-blur rounded-xl border ${isOnline ? `border-${color}-500/50` : 'border-red-500/50'} overflow-hidden transition-all hover:shadow-lg hover:shadow-${color}-500/10`}>
       {/* Header */}
       <div className="p-4 cursor-pointer" onClick={() => onViewDetails(server.id)}>
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isOnline ? `bg-${color}-500/20` : 'bg-red-500/20'}`}>
               {status?.icon ? (
@@ -52,17 +52,17 @@ export function ServerCard({ server, onRemove, onRefresh, onViewDetails }: Serve
               )}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-white text-lg">{server.name}</h3>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium bg-${color}-500/20 text-${color}-400`}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-bold text-white text-lg leading-tight">{server.name}</h3>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium bg-${color}-500/20 text-${color}-400 whitespace-nowrap`}>
                   {SERVER_TYPE_CONFIG[server.type].label}
                 </span>
               </div>
-              <p className="text-gray-400 text-sm">{server.address}:{server.port}</p>
+              <p className="text-gray-400 text-sm mt-0.5">{server.address}:{server.port}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${isOnline ? `bg-${color}-500/20 text-${color}-400` : 'bg-red-500/20 text-red-400'}`}>
+          <div className="flex items-center">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide ${isOnline ? `bg-${color}-500/20 text-${color}-400 border border-${color}-500/30` : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
               {isOnline ? 'ONLINE' : 'OFFLINE'}
             </span>
           </div>
