@@ -96,6 +96,43 @@ export function ServerCard({ server, onRemove, onRefresh, onViewDetails }: Serve
           </div>
         )}
 
+        {/* SA-MP/MTA Specific Info - Gamemode & Map */}
+        {isOnline && (status.gamemode || status.map) && (
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            {status.gamemode && (
+              <div className="bg-gray-700/50 rounded-lg p-2">
+                <p className="text-xs text-gray-500 mb-1">🎮 Gamemode</p>
+                <p className="text-sm text-white font-medium truncate">{status.gamemode}</p>
+              </div>
+            )}
+            {status.map && (
+              <div className="bg-gray-700/50 rounded-lg p-2">
+                <p className="text-xs text-gray-500 mb-1">🗺️ Map</p>
+                <p className="text-sm text-white font-medium truncate">{status.map}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Load Bar for SA-MP/MTA */}
+        {isOnline && players && players.max > 0 && (
+          <div className="mb-3">
+            <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <span>Server Load</span>
+              <span>{Math.round((players.online / players.max) * 100)}%</span>
+            </div>
+            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full ${
+                  players.online / players.max > 0.8 ? 'bg-red-500' : 
+                  players.online / players.max > 0.5 ? 'bg-yellow-500' : 'bg-green-500'
+                }`}
+                style={{ width: `${(players.online / players.max) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* MOTD */}
         {isOnline && status.motd && (
           <div className="bg-gray-900/50 rounded-lg p-3 mb-3">
@@ -106,25 +143,35 @@ export function ServerCard({ server, onRemove, onRefresh, onViewDetails }: Serve
         {/* Player List Toggle */}
         {isOnline && players && players.list && players.list.length > 0 && (
           <button
-            onClick={() => setShowPlayers(!showPlayers)}
+            onClick={(e) => { e.stopPropagation(); setShowPlayers(!showPlayers); }}
             className="w-full flex items-center justify-between px-3 py-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors text-sm"
           >
-            <span className="text-gray-300">View {players.list.length} online players</span>
+            <span className="text-gray-300">👥 View {players.list.length} online players</span>
             {showPlayers ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
           </button>
+        )}
+
+        {/* No Players Message */}
+        {isOnline && players && players.list && players.list.length === 0 && (
+          <div className="px-3 py-2 bg-gray-700/30 rounded-lg text-sm text-gray-400 italic">
+            No players online
+          </div>
         )}
 
         {/* Player List */}
         {showPlayers && players?.list && (
           <div className="mt-2 bg-gray-900/50 rounded-lg p-3 max-h-40 overflow-y-auto">
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-1">
               {players.list.map((player, idx) => (
-                <span
+                <div
                   key={idx}
-                  className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium"
+                  className="flex items-center justify-between px-2 py-1.5 bg-gray-800/50 rounded text-sm"
                 >
-                  {player}
-                </span>
+                  <span className="text-gray-300">{idx + 1}. {typeof player === 'string' ? player : player.name || 'Unknown'}</span>
+                  {typeof player === 'object' && player.score !== undefined && (
+                    <span className="text-xs text-gray-500">Score: {player.score}</span>
+                  )}
+                </div>
               ))}
             </div>
           </div>
