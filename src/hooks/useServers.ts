@@ -69,53 +69,77 @@ async function fetchSAMPStatus(address: string, port: number): Promise<ServerSta
   try {
     // Try samp-api.com which supports CORS
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
     
     const response = await fetch(`https://samp-api.com/api/v1/server/${address}/${port}`, {
       signal: controller.signal,
+      headers: { 'Accept': 'application/json' },
     });
     clearTimeout(timeout);
     
-    if (!response.ok) throw new Error('Failed to fetch');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const data = await response.json();
+    console.log(`[SA-MP] ${address}:${port} response:`, data);
     
-    if (data.error) {
+    // Check if server is actually online based on response
+    if (data.error || data.players === undefined) {
+      console.log(`[SA-MP] ${address}:${port} appears offline:`, data.error || 'No player data');
       return { online: false };
     }
+    
+    // Server is online - build proper status
+    const playerList = data.playerlist || data.players_list || [];
+    const playerCount = typeof data.players === 'number' ? data.players : 0;
+    const maxPlayers = typeof data.maxplayers === 'number' ? data.maxplayers : 0;
     
     return {
       online: true,
       players: {
-        online: data.players || 0,
-        max: data.maxplayers || 0,
-        list: data.playerlist || [],
+        online: playerCount,
+        max: maxPlayers,
+        list: playerList,
       },
-      motd: data.hostname || data.name || data.address,
-      gamemode: data.gamemode,
-      map: data.map,
+      motd: data.hostname || data.name || `${address}:${port}`,
+      gamemode: data.gamemode || data.game_mode || 'Unknown',
+      map: data.map || data.mapname || 'Unknown',
       rules: data.rules,
     };
-  } catch {
+  } catch (err) {
+    console.error(`[SA-MP] Primary API failed for ${address}:${port}:`, err);
+    
     // Fallback: try alternative API
     try {
-      const response2 = await fetch(`https://api.basterserver.com/samp-query?ip=${address}&port=${port}`);
+      const controller2 = new AbortController();
+      const timeout2 = setTimeout(() => controller2.abort(), 8000);
+      
+      const response2 = await fetch(`https://api.basterserver.com/samp-query?ip=${address}&port=${port}`, {
+        signal: controller2.signal,
+      });
+      clearTimeout(timeout2);
+      
       if (response2.ok) {
         const data2 = await response2.json();
+        console.log(`[SA-MP] Fallback API ${address}:${port} response:`, data2);
+        
+        if (data2.online === false) {
+          return { online: false };
+        }
+        
         return {
-          online: data2.online !== false,
+          online: true,
           players: data2.players ? {
             online: data2.players.online || 0,
             max: data2.players.max || 0,
             list: data2.players.list || [],
           } : undefined,
-          motd: data2.hostname || data2.name,
+          motd: data2.hostname || data2.name || `${address}:${port}`,
           gamemode: data2.gamemode,
           map: data2.map,
         };
       }
-    } catch {
-      // Both APIs failed
+    } catch (err2) {
+      console.error(`[SA-MP] Both APIs failed for ${address}:${port}:`, err2);
     }
     return { online: false };
   }
