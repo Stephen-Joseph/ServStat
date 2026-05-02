@@ -195,15 +195,22 @@ export function ServerDetail({ getServerById, onRefresh }: ServerDetailProps) {
                 <h3 className="text-sm font-medium text-gray-400 mb-3">
                   Online Players ({players.list.length})
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {players.list.map((player, idx) => (
-                    <span
-                      key={idx}
-                      className={`px-3 py-1.5 ${colors.bg} ${colors.text} rounded-lg text-sm font-medium`}
-                    >
-                      {player}
-                    </span>
-                  ))}
+                <div className="grid gap-2">
+                  {players.list.map((player, idx) => {
+                    const playerName = typeof player === 'string' ? player : (player?.name || 'Unknown');
+                    const playerScore = typeof player === 'object' && player !== null ? player.score : undefined;
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex items-center justify-between px-3 py-2 bg-gray-800/50 rounded-lg`}
+                      >
+                        <span className="text-gray-200 font-medium">{idx + 1}. {playerName}</span>
+                        {playerScore !== undefined && (
+                          <span className={`text-sm ${colors.text}`}>Score: {playerScore}</span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

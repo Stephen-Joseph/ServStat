@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Users, Signal, Trash2, RefreshCw, ChevronDown, ChevronUp, Server, Gamepad2, Car, ExternalLink } from 'lucide-react';
-import type { GameServer, ServerType, PlayerInfo } from '../types/server';
+import type { GameServer, ServerType } from '../types/server';
 import { SERVER_TYPE_CONFIG } from '../types/server';
 
 interface ServerCardProps {
