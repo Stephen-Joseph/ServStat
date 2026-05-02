@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Users, Signal, Trash2, RefreshCw, ChevronDown, ChevronUp, Server, Gamepad2, Car, ExternalLink } from 'lucide-react';
-import type { GameServer, ServerType } from '../types/server';
+import type { GameServer, ServerType, PlayerInfo } from '../types/server';
 import { SERVER_TYPE_CONFIG } from '../types/server';
 
 interface ServerCardProps {
@@ -162,17 +162,21 @@ export function ServerCard({ server, onRemove, onRefresh, onViewDetails }: Serve
         {showPlayers && players?.list && (
           <div className="mt-2 bg-gray-900/50 rounded-lg p-3 max-h-40 overflow-y-auto">
             <div className="space-y-1">
-              {players.list.map((player, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between px-2 py-1.5 bg-gray-800/50 rounded text-sm"
-                >
-                  <span className="text-gray-300">{idx + 1}. {typeof player === 'string' ? player : player.name || 'Unknown'}</span>
-                  {typeof player === 'object' && player.score !== undefined && (
-                    <span className="text-xs text-gray-500">Score: {player.score}</span>
-                  )}
-                </div>
-              ))}
+              {players.list.map((player, idx) => {
+                const playerName = typeof player === 'string' ? player : (player?.name || 'Unknown');
+                const playerScore = typeof player === 'object' && player !== null ? player.score : undefined;
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between px-2 py-1.5 bg-gray-800/50 rounded text-sm"
+                  >
+                    <span className="text-gray-300">{idx + 1}. {playerName}</span>
+                    {playerScore !== undefined && (
+                      <span className="text-xs text-gray-500">Score: {playerScore}</span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

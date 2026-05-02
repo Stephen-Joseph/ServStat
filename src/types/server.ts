@@ -10,12 +10,18 @@ export interface GameServer {
   lastUpdated?: Date;
 }
 
+export interface PlayerInfo {
+  name: string;
+  score?: number;
+  ping?: number;
+}
+
 export interface ServerStatus {
   online: boolean;
   players?: {
     online: number;
     max: number;
-    list?: string[];
+    list?: (string | PlayerInfo)[];
   };
   version?: string;
   motd?: string;
