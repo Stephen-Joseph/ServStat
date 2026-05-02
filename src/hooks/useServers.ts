@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { GameServer, ServerStatus, ServerType } from '../types/server';
 
 const STORAGE_KEY = 'game-servers';
@@ -138,6 +138,10 @@ async function fetchServerStatus(type: ServerType, address: string, port: number
 export function useServers() {
   const [servers, setServers] = useState<GameServer[]>([]);
   const [loading, setLoading] = useState(true);
+  const serversRef = useRef<GameServer[]>([]);
+  
+  // Keep ref in sync with state
+  serversRef.current = servers;
 
   // Load servers from localStorage on mount (keeping last known status)
   useEffect(() => {
@@ -164,6 +168,32 @@ export function useServers() {
     }
   }, [servers, loading]);
 
+  // Auto-refresh all servers every 60 seconds
+  useEffect(() => {
+    if (servers.length === 0) return;
+    
+    const refreshAll = async () => {
+      const currentServers = serversRef.current;
+      for (const server of currentServers) {
+        const status = await fetchServerStatus(server.type, server.address, server.port);
+        setServers(prev => prev.map((s: GameServer) => 
+          s.id === server.id 
+            ? { ...s, status, lastUpdated: new Date() }
+            : s
+        ));
+      }
+    };
+    
+    // Initial refresh on load
+    refreshAll();
+    
+    const interval = setInterval(() => {
+      refreshAll();
+    }, 60000); // 60 seconds
+    
+    return () => clearInterval(interval);
+  }, [servers.length]); // Only re-run when server count changes
+
   const addServer = useCallback((name: string, address: string, port: number, type: ServerType) => {
     const newServer: GameServer = {
       id: crypto.randomUUID(),
@@ -180,7 +210,7 @@ export function useServers() {
   }, []);
 
   const updateServerStatus = useCallback(async (id: string) => {
-    const server = servers.find((s: GameServer) => s.id === id);
+    const server = serversRef.current.find((s: GameServer) => s.id === id);
     if (!server) return;
 
     const status = await fetchServerStatus(server.type, server.address, server.port);
@@ -190,13 +220,19 @@ export function useServers() {
         ? { ...s, status, lastUpdated: new Date() }
         : s
     ));
-  }, [servers]);
+  }, []);
 
   const refreshAllServers = useCallback(async () => {
-    for (const server of servers) {
-      await updateServerStatus(server.id);
+    const currentServers = serversRef.current;
+    for (const server of currentServers) {
+      const status = await fetchServerStatus(server.type, server.address, server.port);
+      setServers(prev => prev.map((s: GameServer) => 
+        s.id === server.id 
+          ? { ...s, status, lastUpdated: new Date() }
+          : s
+      ));
     }
-  }, [servers, updateServerStatus]);
+  }, []);
 
   const getServerById = useCallback((id: string) => {
     return servers.find((s: GameServer) => s.id === id);
