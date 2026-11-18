@@ -39,7 +39,7 @@ A modern web application to track and monitor your game servers in real-time. Su
 
 ## Live Demo
 
-Try it out: [Live Demo](https://your-demo-link.netlify.app) *(Deploy yours below!)*
+Try it out: [Live Demo](https://servstat.netlify.app/) *(Deploy yours below!)*
 
 ## Quick Start
 
